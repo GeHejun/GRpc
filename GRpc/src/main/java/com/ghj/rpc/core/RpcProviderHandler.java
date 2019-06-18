@@ -51,9 +51,9 @@ public class RpcProviderHandler extends ChannelInboundHandlerAdapter {
      */
     private Object handle(GRpcRequest gRpcRequest) throws InvocationTargetException {
         //获取请求的接口名
-        String className = gRpcRequest.getClassName();
+        String interfaceName = gRpcRequest.getClassName();
         //获取接口对应实现类
-        Object classImpl = handlerMap.get(className);
+        Object classImpl = handlerMap.get(interfaceName);
         //获取实现类对应的Class对象
         Class<?> classImplClass = classImpl.getClass();
         //获取方法名
