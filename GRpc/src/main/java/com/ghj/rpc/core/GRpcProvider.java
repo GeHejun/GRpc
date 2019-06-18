@@ -64,7 +64,7 @@ public class GRpcProvider{
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new GRpcEncoder());
                             ch.pipeline().addLast(new GRpcDecoder());
-                            ch.pipeline().addLast();
+                            ch.pipeline().addLast(new RpcProviderHandler());
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE , true )
