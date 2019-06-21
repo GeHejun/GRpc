@@ -14,12 +14,8 @@ import java.util.UUID;
  * @date 2019-06-18
  */
 public class Consumer implements InvocationHandler {
-    ConsumerSession grpcConsumerConnect;
 
-    public Consumer() {
-        grpcConsumerConnect = new ConsumerSession();
-        grpcConsumerConnect.connect("127.0.0.1", 8888);
-    }
+    ConsumerSession consumerSession = ConsumerSession.instance();
 
     /**
      * 生成代理对象
@@ -31,7 +27,14 @@ public class Consumer implements InvocationHandler {
         if (!interfaceClass.isInterface()) {
             throw new RuntimeException(interfaceClass + "is not a interface");
         }
-        return (T)Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, this);
+        T t = null;
+        try {
+            t =  (T)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{interfaceClass}, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return t;
     }
 
 
@@ -48,9 +51,11 @@ public class Consumer implements InvocationHandler {
         Class<?>[] parameterTypes = method.getParameterTypes();
         request.setParameterTypes(parameterTypes);
         //参数数组
-        request.setParameters(method.getParameters());
+        request.setParameters(args);
         //执行方法
-        Response response = grpcConsumerConnect.send(request);
-        return response.getResultResponse();
+        consumerSession.send(request);
+        return ((Response)DataBus.outData(request.getRequestId(), 3000)).getResultResponse();
     }
+
+
 }

@@ -1,7 +1,7 @@
 package com.ghj.rpc.core;
 
-import com.ghj.rpc.serializer.Decoder;
-import com.ghj.rpc.serializer.Encoder;
+import com.ghj.rpc.serializer.KryoDecoder;
+import com.ghj.rpc.serializer.KryoEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -24,31 +24,10 @@ import java.io.IOException;
 @Data
 public class Provider {
     /**
-     * 接口
-     */
-    private Class<?> interfaceClass;
-    /**
-     * 实现类
-     */
-    private Object classImplement;
-    /**
-     * 超时时间
-     */
-    private int timeOut;
-    /**
-     * 版本
-     */
-    private int version;
-    /**
-     * 序列化方式
-     */
-    private String type;
-
-    /**
      * 发布服务
      */
     public void publish() throws IOException {
-        GrpcRegistry.register();
+        Registry.register();
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -58,9 +37,9 @@ public class Provider {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new Encoder());
-                            ch.pipeline().addLast(new Decoder());
-                            ch.pipeline().addLast(new GrpcProviderHandler());
+                            ch.pipeline().addLast(new KryoEncoder());
+                            ch.pipeline().addLast(new KryoDecoder());
+                            ch.pipeline().addLast(new ProviderHandler());
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE , true )

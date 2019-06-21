@@ -1,16 +1,14 @@
 package com.ghj.rpc.core;
 
 import com.ghj.rpc.context.Request;
-import com.ghj.rpc.context.Response;
-import com.ghj.rpc.serializer.Decoder;
-import com.ghj.rpc.serializer.Encoder;
+import com.ghj.rpc.serializer.KryoDecoder;
+import com.ghj.rpc.serializer.KryoEncoder;
+import com.ghj.rpc.util.PropertiesUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-
-import java.net.InetSocketAddress;
 
 /**
  * 消费者连接
@@ -20,45 +18,57 @@ import java.net.InetSocketAddress;
  */
 public class ConsumerSession {
 
-    Bootstrap bootstrap;
+    public static volatile ConsumerSession consumerSession;
 
-    ChannelFuture channelFuture;
+    SocketChannel socketChannel;
 
-    Response response;
-
-    public void setResponse(Response response) {
-        this.response = response;
+    public static ConsumerSession instance() {
+        if (consumerSession == null) {
+            synchronized(ConsumerSession.class) {
+                if (consumerSession == null) {
+                    String serverIp = null;
+                    Integer serverPort = null;
+                    try {
+                    serverIp = PropertiesUtil.loadProperties("/application.properties","server-ip");
+                    serverPort = Integer.valueOf(PropertiesUtil.loadProperties("/application.properties","server-port"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    consumerSession = new ConsumerSession(serverIp, serverPort);
+                }
+            }
+        }
+        return consumerSession;
     }
 
-    public ConsumerSession() {
-        init();
-    }
 
-    /**
-     * 连接
-     * @param host
-     * @param port
-     */
-    public void connect(String host, int port) {
-        channelFuture = bootstrap.connect(new InetSocketAddress(host, port));
+
+
+    public ConsumerSession(String host, int port) {
+        init(host, port);
     }
 
     /**
      * 初始化
      */
-    public void init() {
+    public void init(String host, int port) {
         try {
             EventLoopGroup group = new NioEventLoopGroup();
-            bootstrap = new Bootstrap();
+            Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group).channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel channel) {
-                            channel.pipeline().addLast(new Decoder());
-                            channel.pipeline().addLast(new Encoder());
+                            channel.pipeline().addLast(new KryoEncoder());
+                            channel.pipeline().addLast(new KryoDecoder());
+                            channel.pipeline().addLast(new ConsumerHandler());
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE, true);
+            ChannelFuture future =bootstrap.connect(host, port).sync();
+            if (future.isSuccess()) {
+                socketChannel = (SocketChannel) future.channel();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -68,15 +78,8 @@ public class ConsumerSession {
      * 发送
      * @return
      */
-    public Response send(Request request) {
-        Channel channel = channelFuture.channel();
-        ChannelFuture resultChannelFuture = channel.writeAndFlush(request);
-        resultChannelFuture.addListener((future) -> {
-            if (future.isSuccess()) {
-                this.response = (Response) future.get();
-            }
-        });
-        return response;
-
+    public void send(Request request) {
+        socketChannel.writeAndFlush(request);
     }
+
 }

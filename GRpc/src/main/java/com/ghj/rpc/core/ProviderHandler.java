@@ -16,20 +16,32 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class ProviderHandler extends ChannelInboundHandlerAdapter {
 
-    
+
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
+    public void channelActive(ChannelHandlerContext ctx)  {
+        System.out.println("------channelActive--------");
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt)  {
+        System.out.println("-------userEventTriggered--------");
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx)  {
+        System.out.println("--------channelInactive-------");
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("------channelRegistered----");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println("------channelRead--------");
         Request gRpcRequest = (Request)msg;
+        System.out.println(msg.toString());
         Object result = handle(gRpcRequest);
         Response gRpcResponse = pack(gRpcRequest, result);
         ctx.writeAndFlush(gRpcResponse);
@@ -37,8 +49,11 @@ public class ProviderHandler extends ChannelInboundHandlerAdapter {
 
 
 
+
+
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("-----channelReadComplete-----");
         super.channelReadComplete(ctx);
     }
 
@@ -73,5 +88,12 @@ public class ProviderHandler extends ChannelInboundHandlerAdapter {
         gRpcResponse.setRequestId(gRpcRequest.getRequestId());
         gRpcResponse.setResultResponse(result);
         return gRpcResponse;
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        System.out.println("-------exceptionCaught------");
+        cause.printStackTrace();
     }
 }

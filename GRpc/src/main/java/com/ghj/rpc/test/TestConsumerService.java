@@ -1,9 +1,9 @@
 package com.ghj.rpc.test;
 
-import com.ghj.rpc.annotation.GrpcQuote;
+import com.ghj.rpc.annotation.Quote;
 
 public class TestConsumerService {
-    @GrpcQuote
+    @Quote
     TestService testService;
 
     public void  getUser() {

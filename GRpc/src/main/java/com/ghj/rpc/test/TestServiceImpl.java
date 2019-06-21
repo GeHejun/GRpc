@@ -1,8 +1,8 @@
 package com.ghj.rpc.test;
 
-import com.ghj.rpc.annotation.GrcpService;
+import com.ghj.rpc.annotation.Service;
 
-@GrcpService
+@Service
 public class TestServiceImpl implements TestService {
     @Override
     public User getUser(Integer id) {

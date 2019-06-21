@@ -1,6 +1,6 @@
 package com.ghj.rpc.core;
 
-import com.ghj.rpc.annotation.GrcpService;
+import com.ghj.rpc.annotation.Service;
 import com.ghj.rpc.util.PropertiesUtil;
 import com.ghj.rpc.util.ReflectUtil;
 
@@ -24,10 +24,10 @@ public class Registry {
      * 发现注解类
      */
     public static void register() throws IOException {
-        String packageName = PropertiesUtil.loadProperties("/grpc.properties", "base-package");
+        String packageName = PropertiesUtil.loadProperties("/application.properties", "base-package");
         List<Class<?>> classes = ReflectUtil.getClasses(packageName);
         classes.forEach(c -> {
-            if (c.isAnnotationPresent(GrcpService.class)) {
+            if (c.isAnnotationPresent(Service.class)) {
                 Class<?>[] interfaces = c.getInterfaces();
                 try {
                     Object o = c.newInstance();

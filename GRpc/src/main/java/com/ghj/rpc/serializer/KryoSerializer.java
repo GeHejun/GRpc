@@ -8,7 +8,10 @@ import io.netty.buffer.ByteBufInputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
+/**
+ * @author GeHejun
+ * @date 2019-06-21
+ */
 public class KryoSerializer {
     private static final ThreadLocalKryoFactory factory = new ThreadLocalKryoFactory();
     public static void serialize(Object object, ByteBuf out) {

@@ -15,7 +15,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-
+/**
+ * @author GeHejun
+ * @date 2019-06-21
+ */
 public class KryoFactory {
     protected KryoFactory() {
     }
@@ -24,7 +27,6 @@ public class KryoFactory {
         kryo.setRegistrationRequired(false);
         kryo.register(Request.class);
         kryo.register(Response.class);
-//        kryo.register(User.class);
         kryo.register(Arrays.asList("").getClass(), new ArraysAsListSerializer());
         kryo.register(GregorianCalendar.class, new GregorianCalendarSerializer());
         kryo.register(InvocationHandler.class, new JdkProxySerializer());

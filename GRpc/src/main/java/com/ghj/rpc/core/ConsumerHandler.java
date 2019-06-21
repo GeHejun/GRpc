@@ -6,6 +6,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
  * 客户端的handler
+ * @author GeHejun
+ * @date 2019-06-21
  */
 public class ConsumerHandler extends ChannelInboundHandlerAdapter {
     @Override

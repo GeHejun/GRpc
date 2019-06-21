@@ -1,6 +1,9 @@
 package com.ghj.rpc.context;
 
 import lombok.Data;
+import lombok.ToString;
+
+import java.io.Serializable;
 
 /**
  * Rpc请求实体类
@@ -8,7 +11,10 @@ import lombok.Data;
  * @date 2019-06-18
  */
 @Data
-public class Request {
+@ToString
+public class Request implements Serializable {
+
+    private static final long serialVersionUID = 5606111910428846773L;
     /**
      * 请求id
      */
@@ -17,6 +23,7 @@ public class Request {
      * 请求类名
      */
     private String className;
+
     /**
      * 请求方法名
      */
